@@ -7,8 +7,3 @@ sky:
     username: root
     password: 123456
 
-  alioss:
-    endpoint: oss-cn-beijing.aliyuncs.com
-    accessKeyId: LTAI5tFq1VBrGAcYkA836SNz
-    accessKeySecret: p22haowUq87a9JwmvTQOiQdDbRdCnb
-    bucketName: web-stuty
