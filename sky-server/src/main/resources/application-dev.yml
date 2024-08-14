@@ -17,3 +17,8 @@ sky:
     accessKeyId: LTAI5tFq1VBrGAcYkA836SNz
     accessKeySecret: p22haowUq87a9JwmvTQOiQdDbRdCnb
     bucketName: web-stuty
+
+  wechat:
+    appid: wxcbf31befb663b6fe
+    secret: a7bdc81bc9538bdb1b6946f37d9f00ea
+
