@@ -7,6 +7,7 @@ import com.sky.service.AddressBookService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class AddressBookServiceImpl implements AddressBookService {
     }
 
     @Override
+    @Transactional
     public void setDefault(AddressBook addressBook) {
         AddressBook addressBook1 = addressBookMapper.getById(addressBook.getId());
         BeanUtils.copyProperties(addressBook1, addressBook);
