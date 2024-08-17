@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +73,8 @@ public class OrderServiceImpl implements OrderService {
         orders.setPhone(addressBook.getPhone());
         orders.setConsignee(addressBook.getConsignee());
         orders.setUserId(BaseContext.getCurrentId());
+        orders.setAddress(addressBook.getDetail());
+        orders.setUserName(userMapper.getById(BaseContext.getCurrentId()).getName());
 
         orderMapper.insert(orders);
         List<OrderDetail> orderDetailList = new ArrayList<>();
@@ -237,5 +238,28 @@ public class OrderServiceImpl implements OrderService {
         }).collect(Collectors.toList());
 
         shoppingCartMapper.insertBatch(shoppingCartList);
+    }
+
+    @Override
+    public PageResult orderSearchCondition(OrdersPageQueryDTO ordersPageQueryDTO) {
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);
+
+        List<OrderVO> list = new ArrayList<>();
+
+        if (page != null && !page.isEmpty()) {
+            for (Orders orders : page.getResult()) {
+                Long orderId = orders.getId();
+                OrderVO orderVO = new OrderVO();
+                BeanUtils.copyProperties(orders, orderVO);
+                List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orderId);
+                List<String> orderDishList = orderDetailList.stream().map(x -> {
+                    return x.getName() + "*" + x.getNumber() + ";";
+                }).collect(Collectors.toList());
+                orderVO.setOrderDishes(String.join("", orderDishList));
+                list.add(orderVO);
+            }
+        }
+        return new PageResult(page.getTotal(), list);
     }
 }

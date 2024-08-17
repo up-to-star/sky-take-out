@@ -27,4 +27,6 @@ public interface OrderService {
     void userCancelOrder(Long id) throws Exception;
 
     void repetion(Long id);
+
+    PageResult orderSearchCondition(OrdersPageQueryDTO ordersPageQueryDTO);
 }
