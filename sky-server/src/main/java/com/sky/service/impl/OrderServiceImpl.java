@@ -302,7 +302,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void reject(OrdersRejectionDTO ordersRejectionDTO) throws Exception {
+    public void reject(OrdersRejectionDTO ordersRejectionDTO) {
         Orders ordersDB = orderMapper.getById(ordersRejectionDTO.getId());
 
         if (ordersDB == null || !ordersDB.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
@@ -319,7 +319,7 @@ public class OrderServiceImpl implements OrderService {
                 .rejectionReason(ordersRejectionDTO.getRejectionReason())
                 .status(Orders.CANCELLED)
                 .cancelTime(LocalDateTime.now())
-                .cancelReason("商家拒单")
+                .cancelReason("商家拒单" + ordersRejectionDTO.getRejectionReason())
                 .build();
         orderMapper.update(orders);
     }
@@ -339,6 +339,30 @@ public class OrderServiceImpl implements OrderService {
         orders.setCancelTime(LocalDateTime.now());
         orders.setStatus(Orders.CANCELLED);
 
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void delivery(Long id) {
+        Orders ordersDB = orderMapper.getById(id);
+        if (ordersDB == null || !ordersDB.getStatus().equals(Orders.CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = new Orders();
+        orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        orders.setId(id);
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void complete(Long id) {
+        Orders ordersDB = orderMapper.getById(id);
+        if (ordersDB == null || !ordersDB.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = Orders.builder().id(id).status(Orders.COMPLETED).deliveryTime(LocalDateTime.now()).build();
         orderMapper.update(orders);
     }
 }
