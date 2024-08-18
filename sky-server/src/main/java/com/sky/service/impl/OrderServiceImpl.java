@@ -378,4 +378,19 @@ public class OrderServiceImpl implements OrderService {
         Orders orders = Orders.builder().id(id).status(Orders.COMPLETED).deliveryTime(LocalDateTime.now()).build();
         orderMapper.update(orders);
     }
+
+    @Override
+    public void reminder(Long orderId) {
+        Orders ordersDB = orderMapper.getById(orderId);
+        if (ordersDB == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Map map = new HashMap();
+        map.put("type", 2);
+        map.put("orderId", orderId);
+        map.put("content", "订单号: " + ordersDB.getNumber());
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+    }
 }
