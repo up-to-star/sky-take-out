@@ -4,6 +4,7 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +89,37 @@ public class ReportServiceImpl implements ReportService {
                 .dateList(StringUtils.join(dateList, ','))
                 .newUserList(StringUtils.join(newUserList, ','))
                 .totalUserList(StringUtils.join(totalUserList, ','))
+                .build();
+    }
+
+    @Override
+    public OrderReportVO getOrderStatistics(LocalDate begin, LocalDate end) {
+        List<LocalDate> dateList = getLocalDates(begin, end);
+        List<Integer> totalOrderList = new ArrayList<>();
+        List<Integer> validOrderList = new ArrayList<>();
+        Integer totalOrder = 0, validOrder = 0;
+        for (LocalDate date : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+            Map map = new HashMap();
+            map.put("begin", beginTime);
+            map.put("end", endTime);
+            Integer total = orderMapper.getCntByMap(map);
+            totalOrder += total;
+            totalOrderList.add(total);
+            map.put("status", Orders.COMPLETED);
+            Integer valid = orderMapper.getCntByMap(map);
+            validOrder += valid;
+            validOrderList.add(valid);
+        }
+        return OrderReportVO
+                .builder()
+                .dateList(StringUtils.join(dateList, ','))
+                .totalOrderCount(totalOrder)
+                .validOrderCount(validOrder)
+                .orderCountList(StringUtils.join(totalOrderList, ','))
+                .validOrderCountList(StringUtils.join(validOrderList, ','))
+                .orderCompletionRate(validOrder * 1.0 / totalOrder)
                 .build();
     }
 }
