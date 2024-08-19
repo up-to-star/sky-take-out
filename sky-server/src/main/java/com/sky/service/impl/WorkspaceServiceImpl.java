@@ -1,11 +1,15 @@
 package com.sky.service.impl;
 
 import com.sky.entity.Orders;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.SetmealMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.WorkspaceService;
 import com.sky.vo.BusinessDataVO;
+import com.sky.vo.DishOverViewVO;
 import com.sky.vo.OrderOverViewVO;
+import com.sky.vo.SetmealOverViewVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,12 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private DishMapper dishMapper;
+
+    @Autowired
+    private SetmealMapper setmealMapper;
 
 
     @Override
@@ -71,6 +81,37 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .completedOrders(completedOrders)
                 .waitingOrders(waitingOrders)
                 .deliveredOrders(deliveredOrders)
+                .build();
+    }
+
+    @Override
+    public DishOverViewVO getDishOverview() {
+        Map map = new HashMap();
+        map.put("status", 0);
+
+        Integer discontinued = dishMapper.getCntByMap(map);
+        map.put("status", 1);
+
+        Integer sold = dishMapper.getCntByMap(map);
+
+        return DishOverViewVO
+                .builder()
+                .discontinued(discontinued)
+                .sold(sold)
+                .build();
+    }
+
+    @Override
+    public SetmealOverViewVO getSetmealOverview() {
+        Map map = new HashMap();
+        map.put("status", 0);
+        Integer discontinued = setmealMapper.getCntByMap(map);
+        map.put("status", 1);
+        Integer sold = setmealMapper.getCntByMap(map);
+        return SetmealOverViewVO
+                .builder()
+                .discontinued(discontinued)
+                .sold(sold)
                 .build();
     }
 }
